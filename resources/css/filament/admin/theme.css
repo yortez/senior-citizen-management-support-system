@@ -1,0 +1,29 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+/* .fi-ta-table > tbody {
+    @apply divide-none
+}
+.fi-ta-table > tbody {
+    @apply divide-none
+} */
+ 
+.fi-ta-text {
+    @apply py-0.5
+}
+ 
+.fi-ta-table > .whitespace-nowrap {
+    @apply py-0.5
+}
+ 
+.fi-ta-cell > div:has(.flex) {
+    @apply py-0.5
+}
+.fi-topbar > nav { 
+    @apply !bg-inherit ring-0 shadow-none;
+}
+ 
+.fi-sidebar-header {
+    @apply !bg-inherit ring-0 shadow-none;
+} 
