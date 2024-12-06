@@ -30,32 +30,39 @@ class BenefitResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Split::make([
-                Forms\Components\Section::make()
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                
-                Forms\Components\Textarea::make('description')
-                ->rows(5)
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('amount')
-                    ->numeric()
-                    ->default(null),
-                ]),
-                Forms\Components\Section::make()
-                    ->schema([
+                Forms\Components\Group::make([
+                    Forms\Components\Section::make('Benefit Details')
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                                ->required()
+                                ->maxLength(255),
+
+                            Forms\Components\MarkdownEditor::make('description')
+                                ->columnSpanFull(),
+
+                        ]),
+                ])->columnSpan(2),
+
+                Forms\Components\Group::make([
+                    Forms\Components\Section::make('Age Requirements')->schema([
                         Forms\Components\TextInput::make('min_age')
+                            ->default('60')
+                            ->minValue('60')
                             ->required()
                             ->numeric(),
                         Forms\Components\TextInput::make('max_age')
                             ->required()
                             ->numeric(),
-    ])->grow(false),
-    ])->columnSpanFull()
-                
-            ]);
+                    ]),
+                    Forms\Components\Section::make('Subsidy Allocated')->schema([
+                        Forms\Components\TextInput::make('amount')
+                            ->prefix('₱ ')
+                            ->required(),
+
+                    ]),
+                ])->columnSpan(1),
+
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -74,7 +81,7 @@ class BenefitResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('description')
-                
+
                     ->wrap(),
                 Tables\Columns\TextColumn::make('amount')
                     ->prefix('₱ ')

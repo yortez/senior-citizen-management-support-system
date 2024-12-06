@@ -92,7 +92,7 @@ class SeniorCitizenResource extends Resource
                                 ->required()
                                 ->maxLength(255)
                                 ->columnSpan(2),
-                        ])->columns(3),
+                        ])->columns(2),
                     Forms\Components\Section::make('Other Information')
                         ->description('')
                         ->schema([
