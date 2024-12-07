@@ -99,65 +99,51 @@ class PayrollResource extends Resource
     }
 
     public static function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('created_at')
-                ->label('Date')
-                ->dateTime('F j, Y')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('benefit.name')
-                ->label('Benefit')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('benefit.amount')
-                ->label('Amount')
-                ->numeric()
-                ->sortable(),
-            Tables\Columns\TextColumn::make('note')
-                ->searchable(),
-            Tables\Columns\TextColumn::make('status')
-                ->badge()
-                ->color(fn (string $state): string => match ($state) {
-                    'draft' => 'gray',
-                    'Pending' => 'warning',
-                    'Approved' => 'success',
-                    'Rejected' => 'danger',
-                })
-                ->searchable(),
-            Tables\Columns\TextColumn::make('seniors.full_name')
-                ->label('Senior Citizens')
-                ->listWithLineBreaks()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Date')
+                    ->dateTime('F j, Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('benefit.name')
+                    ->label('Benefit')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('benefit.amount')
+                    ->label('Amount')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('note')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'draft' => 'gray',
+                        'Pending' => 'warning',
+                        'Approved' => 'success',
+                        'Rejected' => 'danger',
+                    })
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('seniors.full_name')
+                    ->label('Senior Citizens')
+                    ->listWithLineBreaks()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-            Tables\Columns\TextColumn::make('updated_at')
-                ->label('Date Approved')
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-        ])
-        ->filters([
-            Tables\Filters\Filter::make('hide_approved')
-                ->label('Hide Approved')
-                ->toggle() // Display as a toggle switch
-                ->query(function ($query, $state) {
-                    if ($state) {
-                        $query->where('status', '!=', 'Approved'); // Hide approved rows if toggled on
-                    }
-                })
-                ->default(true), // Hide approved rows by default
-        ])
-        ->actions([
-            Tables\Actions\ActionGroup::make([
-                Tables\Actions\Action::make('edit'),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Date Approved')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-        ])
-        ->bulkActions([
-            // Tables\Actions\BulkActionGroup::make([
-            //     Tables\Actions\DeleteBulkAction::make(),
-            // ]),
-        ]);
-}
+            ->filters([])
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('edit'),
+                ])
+            ])
+            ->bulkActions([]);
+    }
 
 
 
