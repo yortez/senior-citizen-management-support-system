@@ -127,6 +127,7 @@ class SeniorCitizenResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('city_id')
                                 ->relationship('city', 'name')
+                                ->default(1)
                                 ->searchable()
                                 ->preload()
                                 ->createOptionForm([
@@ -307,7 +308,7 @@ class SeniorCitizenResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make('view'),
-                    Tables\Actions\EditAction::make('edit')->slideOver(),
+                    Tables\Actions\EditAction::make('edit'),
                     Tables\Actions\DeleteAction::make('delete'),
                 ])
             ])
@@ -331,7 +332,7 @@ class SeniorCitizenResource extends Resource
             'index' => Pages\ListSeniorCitizens::route('/'),
             'create' => Pages\CreateSeniorCitizen::route('/create'),
             // 'view' => Pages\ViewSeniorCitizen::route('/{record}'),
-            // 'edit' => Pages\EditSeniorCitizen::route('/{record}/edit'),
+            'edit' => Pages\EditSeniorCitizen::route('/{record}/edit'),
         ];
     }
 }

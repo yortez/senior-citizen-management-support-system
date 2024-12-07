@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SeniorCitizen extends Model
 {
+    use HasFactory;
     protected $table = 'senior_citizens';
     protected $fillable = [
         'osca_id',
@@ -23,7 +25,6 @@ class SeniorCitizen extends Model
         'city_id',
         'barangay_id',
         'purok_id',
-
         'gsis_id',
         'philhealth_id',
         'illness',
@@ -31,7 +32,7 @@ class SeniorCitizen extends Model
         'educational_attainment',
         'is_active',
         'registry_number',
-        
+
 
     ];
     // protected $guarded = [];
@@ -52,11 +53,9 @@ class SeniorCitizen extends Model
     // {
     //     return $this->belongsTo(Payroll::class);
     // }
-   
+
     public function payrolls()
     {
         return $this->belongsToMany(Payroll::class, 'payroll_senior_citizen')->withTimestamps();
     }
-    
-
 }
