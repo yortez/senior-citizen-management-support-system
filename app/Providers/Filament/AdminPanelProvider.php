@@ -35,8 +35,8 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
 
-            ->passwordReset()
-            ->emailVerification()
+            // ->passwordReset()
+            // ->emailVerification()
             // ->brandName('Senior Citizen Management Support System')
             ->brandLogo(asset('logo.png'))
             ->brandLogoHeight('3.1rem')

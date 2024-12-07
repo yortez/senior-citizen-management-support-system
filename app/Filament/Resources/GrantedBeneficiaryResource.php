@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\GrantedBeneficiaryResource\Pages;
 use App\Filament\Resources\GrantedBeneficiaryResource\RelationManagers;
+use App\Filament\Resources\PayrollResource\Pages\EditPayroll;
+use App\Filament\Resources\PayrollResource\Pages\ViewPayroll;
 use App\Models\GrantedBeneficiary;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,6 +15,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PayrollResource\RelationManagers\SeniorsRelationManager;
+use App\Models\Payroll;
+use App\Models\SeniorCitizen;
 
 class GrantedBeneficiaryResource extends Resource
 {
@@ -33,30 +37,31 @@ class GrantedBeneficiaryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('payroll_id')
+                    ->label('Payroll')
                     ->options(function () {
-                        return \App\Models\Payroll::where('status', 'approved')
-                            ->pluck('note', 'id'); // 'note' is displayed, 'id' is the value
+                        // Get all approved payrolls
+                        $approvedPayrolls = \App\Models\Payroll::where('status', 'approved')->get();
+
+                        // Get payroll IDs that are already used in GrantedBeneficiary
+                        $usedPayrollIds = GrantedBeneficiary::pluck('payroll_id')->toArray();
+
+                        // Filter out the used payrolls and create the options array
+                        return $approvedPayrolls->whereNotIn('id', $usedPayrollIds)
+                            ->pluck('note', 'id')
+                            ->toArray();
                     })
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function (callable $set, $state) {
                         $payroll = \App\Models\Payroll::find($state);
-                        $set('note', $payroll?->note ?? null);  // Set 'note' field based on selected payroll_id
+                        $set('note', $payroll?->note ?? null);
                     })
                     ->disabledOn('edit'),
-                Forms\Components\TextInput::make('note')
-                    ->maxLength(255)
-                    ->default(null)
-                    ->disabledOn('edit'),  // Optionally disable the field if you want it to be read-only
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'Ongoing' => 'On going',
-                        'Completed' => 'Completed',
-                    ])
-                    ->required(),
+
             ]);
     }
-    
+
+
 
     public static function table(Table $table): Table
     {
@@ -68,16 +73,16 @@ class GrantedBeneficiaryResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date')
                     ->dateTime('F j, Y')
-                    
+
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Ongoing' => 'primary',
                         'Completed' => 'success',
                     })
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -87,7 +92,13 @@ class GrantedBeneficiaryResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->slideOver(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('viewPayroll')
+                        ->label('View Payroll')
+                        ->icon('heroicon-o-eye')
+                        ->url(fn(GrantedBeneficiary $record): string => ViewPayroll::getUrl(['record' => $record->payroll_id]))
+                        ->openUrlInNewTab(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -96,7 +107,7 @@ class GrantedBeneficiaryResource extends Resource
             ]);
     }
 
-   
+
 
     public static function getPages(): array
     {

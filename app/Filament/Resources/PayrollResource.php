@@ -44,6 +44,7 @@ class PayrollResource extends Resource
                                 $set('note', $benefit ? $benefit->name : null);
                             }),
                         Forms\Components\TextInput::make('note')
+                            ->disabled()
                             ->maxLength(255)
                             ->default(null),
                         Forms\Components\Select::make('status')
@@ -58,38 +59,7 @@ class PayrollResource extends Resource
 
             ]);
     }
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Infolists\Components\Section::make()
-                    ->description('List of granted Beneficiaries')
 
-
-
-                    ->schema([
-                        Infolists\Components\TextEntry::make('seniors.osca_id')
-                            ->label('OSCA ID')
-                            ->listWithLineBreaks(),
-                        Infolists\Components\TextEntry::make('seniors.full_name')
-                            ->label('Senior Citizens')
-                            ->listWithLineBreaks()
-                            ->columnSpan(2),
-                        Infolists\Components\TextEntry::make('seniors.age')
-                            ->label('Age')
-                            ->listWithLineBreaks(),
-                        Infolists\Components\TextEntry::make('seniors.birthday')
-                            ->label('Birthday')
-                            ->listWithLineBreaks(),
-                        Infolists\Components\TextEntry::make('seniors.gender')
-                            ->label('Gender')
-                            ->listWithLineBreaks(),
-                        Infolists\Components\TextEntry::make('seniors.barangay.name')
-                            ->label('Barangay')
-                            ->listWithLineBreaks(),
-                    ])->columns(7),
-            ]);
-    }
 
     public static function getRelations(): array
     {
@@ -154,6 +124,8 @@ class PayrollResource extends Resource
             'index' => Pages\ListPayrolls::route('/'),
             'create' => Pages\CreatePayroll::route('/create'),
             'edit' => Pages\EditPayroll::route('/{record}/edit'),
+            'view' => Pages\ViewPayroll::route('/{record}'),
+
         ];
     }
 }
