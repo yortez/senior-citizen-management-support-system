@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\AgeBracketTable;
+use App\Filament\Widgets\AgeBracketBarGraph;
+use App\Filament\Widgets\GenderTable;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -27,6 +30,8 @@ use EightyNine\Reports\ReportsPlugin;
 use CodeWithDennis\FilamentThemeInspector\FilamentThemeInspectorPlugin;
 use Swis\Filament\Backgrounds\FilamentBackgroundsPlugin;
 use Swis\Filament\Backgrounds\ImageProviders\MyImages;
+use App\Filament\Widgets\SeniorCitizensByBarangayTable;
+use App\Filament\Widgets\SeniorCitizenByBarangayChart;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -34,7 +39,6 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-
             // ->passwordReset()
             // ->emailVerification()
             // ->brandName('Senior Citizen Management Support System')
@@ -52,13 +56,13 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
-            // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                // Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
                 TotalSenior::class,
-                SeniorsGenderDoughnutChart::class,
-                SeniorsByBarangay::class,
+                AgeBracketTable::class,
+                SeniorCitizensByBarangayTable::class,
+                AgeBracketBarGraph::class,
+                SeniorCitizenByBarangayChart::class,
+
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -93,7 +97,7 @@ class AdminPanelProvider extends PanelProvider
                     ->enableTwoFactorAuthentication(
                         force: false,
                     )
-                    ->avatarUploadComponent(fn() => FileUpload::make('avatar_url')->disk('public')),
+                    ->avatarUploadComponent(fn() => FileUpload::make('avatar_url')->disk('public')->directory('users')->avatar()->alignment('center')),
                 FilamentBackgroundsPlugin::make()
                     ->imageProvider(
                         MyImages::make()

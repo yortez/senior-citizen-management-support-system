@@ -16,7 +16,7 @@ class TotalSenior extends BaseWidget
             Stat::make('Total Senior Citizens in Koronadal City', SeniorCitizen::query()->count()),
             Stat::make('Payroll for Approval', Payroll::query()->where('status', 'Pending')->count()),
             Stat::make('On going distribution of Payroll', GrantedBeneficiary::query()->where('status', 'ongoing')->count()),
-            
+
         ];
     }
 }

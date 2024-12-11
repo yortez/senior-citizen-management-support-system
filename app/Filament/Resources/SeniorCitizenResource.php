@@ -90,12 +90,7 @@ class SeniorCitizenResource extends Resource
                                 ->required(),
                             Forms\Components\TextInput::make('birth_place')
                                 ->required()
-                                ->maxLength(255)
-                                ->columnSpan(2),
-                        ])->columns(2),
-                    Forms\Components\Section::make('Other Information')
-                        ->description('')
-                        ->schema([
+                                ->maxLength(255),
                             Forms\Components\Select::make('educational_attainment')
                                 ->options([
                                     'elementary graduate' => 'Elementary Graduate',
@@ -105,6 +100,11 @@ class SeniorCitizenResource extends Resource
                                     'doctorate degree' => 'Doctorate Degree',
                                 ])
                                 ->required(),
+                        ])->columns(2),
+                    Forms\Components\Section::make('Other Information')
+                        ->description('')
+                        ->schema([
+
                             Forms\Components\TextInput::make('gsis_id')
                                 ->required()
                                 ->maxLength(255),
@@ -119,7 +119,7 @@ class SeniorCitizenResource extends Resource
                                 ->maxLength(255),
 
 
-                        ])->columns(3),
+                        ])->columns(2),
                 ])->columnSpan(2),
                 Forms\Components\Group::make()->schema([
                     Forms\Components\Section::make('Address')

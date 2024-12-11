@@ -76,7 +76,7 @@ class UserResource extends Resource
                     ]),
                 Forms\Components\Group::make()
                     ->schema([
-                        Forms\Components\FileUpload::make('image')
+                        Forms\Components\FileUpload::make('avatar_url')
                             ->directory('users')
                             ->avatar()
                             ->alignment('center'),
@@ -89,13 +89,7 @@ class UserResource extends Resource
                                     ->dehydrated(fn(?string $state): bool => filled($state))
                                     ->revealable()
                                     ->required(),
-                                Forms\Components\TextInput::make('password_confirmation')
-                                    ->password()
-                                    ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
-                                    ->dehydrated()
-                                    ->revealable()
-                                    ->same('password')
-                                    ->required(),
+
                             ])
                             ->compact()
                             ->hidden(fn(string $operation): bool => $operation === 'view'),
@@ -111,7 +105,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')
+                Tables\Columns\ImageColumn::make('avatar_url')
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
