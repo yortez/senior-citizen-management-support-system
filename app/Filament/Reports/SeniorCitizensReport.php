@@ -18,7 +18,7 @@ use Carbon\Carbon;
 
 class SeniorCitizensReport extends Report
 {
-//    public ?string $heading = "Report";
+    //    public ?string $heading = "Report";
 
     // public ?string $subHeading = "A great report";
 
@@ -54,7 +54,7 @@ class SeniorCitizensReport extends Report
             ->schema([
                 Body\Layout\BodyColumn::make()
                     ->schema([
-                        
+
                         VerticalSpace::make(),
                         Text::make("Verified Senior Citizens")
                             ->fontXl()
@@ -71,14 +71,21 @@ class SeniorCitizensReport extends Report
                                     ->label("Name"),
                                 Body\TextColumn::make("age")
                                     ->label("Age"),
-                                
+
                             ])
                             ->data(
                                 function (?array $filters) {
-                                   
+
                                     return SeniorCitizen::query()
-                                        
-                                        ->select("osca_id", "full_name", "age", "gender", "civil_status", "religion", "birth_place"
+
+                                        ->select(
+                                            "osca_id",
+                                            "full_name",
+                                            "age",
+                                            "gender",
+                                            "civil_status",
+                                            "religion",
+                                            "birth_place"
                                         )
                                         ->take(10)
                                         ->get();
@@ -92,8 +99,7 @@ class SeniorCitizensReport extends Report
     function footer(Footer $footer): Footer
     {
         return $footer
-            ->schema([
-            ]);
+            ->schema([]);
     }
 
     public
