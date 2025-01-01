@@ -11,6 +11,7 @@
         "codewithdennis/filament-theme-inspector": "^0.0.7",
         "eightynine/filament-reports": "^3.0",
         "filament/filament": "^3.2.121",
+        "ext-curl": "*",
         "filament/notifications": "^3.2",
         "jeffgreco13/filament-breezy": "^2.4.5",
         "laravel/framework": "^11.29",

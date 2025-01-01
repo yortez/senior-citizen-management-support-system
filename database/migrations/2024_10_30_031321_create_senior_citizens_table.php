@@ -42,10 +42,9 @@ return new class extends Migration
             $table->string('educational_attainment');
             $table->boolean('is_active')->default(true);
 
-            
-            
+
+
             $table->text('registry_number')->default('none');
-            $table->string('full_name')->virtualAs('concat(first_name, \' \', last_name)');
             $table->timestamps();
         });
     }
