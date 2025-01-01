@@ -13,4 +13,8 @@ class Barangay extends Model
     {
         return $this->hasMany(SeniorCitizen::class);
     }
+    public function puroks()
+    {
+        return $this->hasMany(Purok::class);
+    }
 }

@@ -13,4 +13,8 @@ class Purok extends Model
     {
         return $this->hasMany(SeniorCitizen::class);
     }
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
 }

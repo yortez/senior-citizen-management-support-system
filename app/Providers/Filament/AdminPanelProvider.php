@@ -101,7 +101,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentBackgroundsPlugin::make()
                     ->imageProvider(
                         MyImages::make()
-                            ->directory('\images\backgrounds')
+                            ->directory('/images/backgrounds')
                     ),
             ])
             ->userMenuItems([

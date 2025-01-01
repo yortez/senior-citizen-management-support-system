@@ -17,14 +17,13 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('first_name');
             $table->string('middle_name');
-            $table->string('extension');
+            $table->string('extension')->nullable();
             $table->date('birthday');
             $table->integer('age');
             $table->string('gender');
             $table->string('civil_status');
             $table->string('religion');
             $table->string('birth_place');
-
             $table->foreignId('city_id')
                 ->constrained('cities')
                 ->cascadeOnDelete();
@@ -34,18 +33,13 @@ return new class extends Migration
             $table->foreignId('purok_id')
                 ->constrained('puroks')
                 ->cascadeOnDelete();
-
-            $table->string('gsis_id');
-            $table->string('philhealth_id');
-            $table->string('illness');
-            $table->string('disability');
+            $table->string('gsis_id')->nullable();
+            $table->string('philhealth_id')->nullable();
+            $table->string('illness')->nullable();
+            $table->string('disability')->nullable();
             $table->string('educational_attainment');
             $table->boolean('is_active')->default(true);
-
-            
-            
-            $table->text('registry_number')->default('none');
-            $table->string('full_name')->virtualAs('concat(first_name, \' \', last_name)');
+            $table->text('registry_number')->nullable();
             $table->timestamps();
         });
     }

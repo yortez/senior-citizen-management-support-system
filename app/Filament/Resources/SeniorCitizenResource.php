@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SeniorCitizenResource\Pages;
 use App\Filament\Resources\SeniorCitizenResource\RelationManagers;
+use App\Models\Purok;
 use App\Models\SeniorCitizen;
+use App\Models\Barangay;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +15,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Carbon\Carbon;
+use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
-
+use Illuminate\Support\Collection;
+use Filament\Forms\Components\Wizard;
+use Guava\FilamentClusters\Forms\Cluster;
 
 class SeniorCitizenResource extends Resource
 {
@@ -28,42 +33,59 @@ class SeniorCitizenResource extends Resource
         return static::getModel()::count();
     }
     protected static ?string $navigationBadgeTooltip = 'The number of seniors';
-    protected static ?string $recordTitleAttribute = 'full_name';
+    protected static ?string $recordTitleAttribute = 'osca_id';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Group::make()->schema([
-                    Forms\Components\Section::make('Personal Information')
-                        ->description('')
+
+                Forms\Components\Wizard::make([
+                    Wizard\Step::make('Personal Information')
                         ->schema([
                             Forms\Components\TextInput::make('osca_id')
                                 ->unique(ignoreRecord: true)
-                                ->numeric(),
-                            Forms\Components\TextInput::make('last_name')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('first_name')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('middle_name')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('extension')
-                                ->required()
-                                ->maxLength(255),
+                                ->numeric()
+                                ->required(),
+
+
+                            Forms\Components\TextInput::make('registry_number')
+                                ->hidden(fn($get) => $get('registry_number_hidden') ?? true) // Hide based on Toggle state
+                                ->required(fn($get) => !($get('registry_number_hidden') ?? true)), // Only required when visible
+
+                            Cluster::make([
+                                Forms\Components\TextInput::make('last_name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('Last Name'),
+                                Forms\Components\TextInput::make('first_name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('First Name'),
+                                Forms\Components\TextInput::make('middle_name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('Middle Name'),
+                                Forms\Components\TextInput::make('extension')
+                                    ->maxLength(255)
+                                    ->placeholder('Name extension'),
+                            ])
+                                ->label('Name')
+                                ->columnSpanFull(),
+
+
                             Forms\Components\DatePicker::make('birthday')
                                 ->required()
-                                ->native(false)
-                                ->reactive() // To listen for changes
+                                ->live(onBlur: true)
+                                ->maxDate(now()->subYears(60))
                                 ->afterStateUpdated(function ($set, $state) {
-                                    // Automatically compute the age based on the selected birthday
-                                    $age = Carbon::parse($state)->age;  // Compute the age using Carbon
-                                    $set('age', $age);  // Set the computed age in the 'age' field
+                                    $age = Carbon::parse($state)->age;
+                                    $set('age', $age);
                                 }),
                             Forms\Components\TextInput::make('age')
+                                ->disabled()
 
+                                ->dehydrated()
                                 ->required(),
                             Forms\Components\Select::make('gender')
                                 ->options([
@@ -88,9 +110,6 @@ class SeniorCitizenResource extends Resource
                                     'others' => 'Other',
                                 ])
                                 ->required(),
-                            Forms\Components\TextInput::make('birth_place')
-                                ->required()
-                                ->maxLength(255),
                             Forms\Components\Select::make('educational_attainment')
                                 ->options([
                                     'elementary graduate' => 'Elementary Graduate',
@@ -100,30 +119,24 @@ class SeniorCitizenResource extends Resource
                                     'doctorate degree' => 'Doctorate Degree',
                                 ])
                                 ->required(),
-                        ])->columns(2),
-                    Forms\Components\Section::make('Other Information')
-                        ->description('')
+                            Forms\Components\Textarea::make('birth_place')
+                                ->required()
+                                ->maxLength(255)
+                                ->columnSpanFull(),
+                        ])->columns(3),
+                    Wizard\Step::make('Other Information')
                         ->schema([
 
                             Forms\Components\TextInput::make('gsis_id')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('philhealth_id')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('illness')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('disability')
-                                ->required()
                                 ->maxLength(255),
-
-
                         ])->columns(2),
-                ])->columnSpan(2),
-                Forms\Components\Group::make()->schema([
-                    Forms\Components\Section::make('Address')
-                        ->description('')
+                    Wizard\Step::make('Address')
                         ->schema([
                             Forms\Components\Select::make('city_id')
                                 ->relationship('city', 'name')
@@ -141,45 +154,39 @@ class SeniorCitizenResource extends Resource
                                 ->relationship('barangay', 'name')
                                 ->searchable()
                                 ->preload()
+                                ->live()
                                 ->createOptionForm([
                                     Forms\Components\TextInput::make('name')
                                         ->required()
                                         ->maxLength(255),
                                 ])
-
-
                                 ->required(),
                             Forms\Components\Select::make('purok_id')
-                                ->relationship('purok', 'name')
-                                ->searchable()
-                                ->preload()
+                                ->options(fn(Get $get): Collection => Purok::query()
+                                    ->where('barangay_id', $get('barangay_id'))
+                                    ->pluck('name', 'id'))
                                 ->createOptionForm([
+                                    Forms\Components\Select::make('barangay_id')
+                                        ->options(fn(Get $get): Collection => Barangay::query()
+                                            ->pluck('name', 'id'))
+                                        ->default(fn(Get $get) => $get('../../barangay_id'))
+                                        ->required(),
                                     Forms\Components\TextInput::make('name')
                                         ->required()
                                         ->maxLength(255),
                                 ])
-
+                                ->createOptionUsing(function (array $data) {
+                                    return Purok::create($data);
+                                })
+                                ->preload()
                                 ->required(),
-                        ]),
-                    Forms\Components\Section::make('Status')
-                        ->description('')
-                        ->schema([
-                            Forms\Components\Toggle::make('is_active')
-                                ->label('Active')
-                                ->default(true)
-                                ->required()
-                                ->reactive()
-                                ->afterStateUpdated(function (callable $set, $state) {
-                                    $set('registry_number_hidden', $state); // Hide registry_number when active
-                                }),
-                            Forms\Components\TextInput::make('registry_number')
-                                ->hidden(fn($get) => $get('registry_number_hidden') ?? true) // Hide based on Toggle state
-                                ->required(fn($get) => !($get('registry_number_hidden') ?? true)), // Only required when visible
-                        ]),
 
-                ])->columnSpan(1),
+                        ])->columns(3),
+                ]),
 
-            ])->columns(3);
+
+            ])
+            ->columns(1);
     }
     public static function infolist(Infolist $infolist): Infolist
     {
@@ -188,7 +195,6 @@ class SeniorCitizenResource extends Resource
                 Infolists\Components\Fieldset::make('Personal Information')
                     ->schema([
                         Infolists\Components\TextEntry::make('osca_id'),
-                        Infolists\Components\TextEntry::make('full_name'),
                         Infolists\Components\TextEntry::make('age'),
                         Infolists\Components\TextEntry::make('birthday'),
                         Infolists\Components\TextEntry::make('gender'),
@@ -219,21 +225,15 @@ class SeniorCitizenResource extends Resource
     {
         return $table
             ->columns([
-
-                Tables\Columns\TextColumn::make('full_name')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('osca_id')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('last_name')
-                    ->searchable()
-                    ->hidden(),
-                Tables\Columns\TextColumn::make('first_name')
-                    ->hidden()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('middle_name')
-                    ->hidden()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('extension')
-                    ->hidden()
-                    ->searchable(),
+                    ->label('Name')
+                    ->formatStateUsing(fn(SeniorCitizen $record): string =>
+                    "{$record->last_name}, {$record->first_name} {$record->middle_name} {$record->extension}")
+                    ->sortable(['last_name', 'first_name', 'middle_name'])
+                    ->searchable(['last_name', 'first_name', 'middle_name', 'extension']),
+
                 Tables\Columns\TextColumn::make('age')
                     ->numeric()
                     ->sortable(),
@@ -280,17 +280,29 @@ class SeniorCitizenResource extends Resource
                 Tables\Columns\TextColumn::make('educational_attainment')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
-                Tables\Columns\TextColumn::make('is_active')
+                Tables\Columns\SelectColumn::make('is_active')
                     ->label('Status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        '1' => 'primary',
-                        '0' => 'danger'
-                    })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->options([
                         '1' => 'Active',
                         '0' => 'Deceased',
+                    ])
+                    ->action(function ($record, $column) {
+                        $name = $column->getName();
+                        $record->update([
+                            $name => !$record->$name
+                        ]);
                     }),
+                // Tables\Columns\TextColumn::make('is_active')
+                //     ->label('Status')
+                //     ->badge()
+                //     ->color(fn(string $state): string => match ($state) {
+                //         '1' => 'primary',
+                //         '0' => 'danger'
+                //     })
+                //     ->formatStateUsing(fn(string $state): string => match ($state) {
+                //         '1' => 'Active',
+                //         '0' => 'Deceased',
+                //     }),
 
 
                 Tables\Columns\TextColumn::make('created_at')
