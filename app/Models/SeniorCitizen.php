@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class SeniorCitizen extends Model
 {
@@ -57,5 +59,9 @@ class SeniorCitizen extends Model
     public function payrolls()
     {
         return $this->belongsToMany(Payroll::class, 'payroll_senior_citizen')->withTimestamps();
+    }
+    public function religion()
+    {
+        return $this->belongsTo(Religion::class);
     }
 }
