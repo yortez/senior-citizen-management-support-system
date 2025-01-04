@@ -23,7 +23,8 @@ class SeniorCitizenByBarangayChart extends ChartWidget
                 [
                     'label' => 'Number of Senior Citizens',
                     'data' => $data->pluck('count')->toArray(),
-                    'backgroundColor' => $this->getRandomColors(count($data)),
+                    'backgroundColor' => ['#36A2EB', '#FF6384', '#4BC0C0', '#FF9F40'],
+
                 ],
             ],
             'labels' => $data->pluck('barangay.name')->toArray(),

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
@@ -17,7 +18,7 @@ class Payroll extends Model
         'isActive',
         'granted_beneficiary_id',
     ];
-    
+
     public function senior_citizen()
     {
         return $this->belongsTo(SeniorCitizen::class);
@@ -28,13 +29,10 @@ class Payroll extends Model
     }
     public function seniors()
     {
-        return $this->belongsToMany(SeniorCitizen::class, 'payroll_senior_citizen')->withTimestamps();
+        return $this->belongsToMany(SeniorCitizen::class, 'payroll_senior_citizen')->withPivot('status');
     }
-    public function granted_beneficiaries()
+    public function getClaimedSeniorsCountAttribute()
     {
-        return $this->belongsTo(GrantedBeneficiary::class, );
-
+        return $this->seniors()->wherePivot('status', 'Claimed')->count();
     }
-    
-
 }

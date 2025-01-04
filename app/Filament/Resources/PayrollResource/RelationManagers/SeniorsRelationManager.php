@@ -9,6 +9,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Columns\Column;
@@ -47,7 +48,7 @@ class SeniorsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('birthday'),
                 Tables\Columns\TextColumn::make('barangay.name'),
-                Tables\Columns\SelectColumn::make('claim_status')
+                Tables\Columns\SelectColumn::make('status')
                     ->label('Incentive Status')
                     ->options([
                         'Unclaimed' => 'Unclaimed',
@@ -86,7 +87,7 @@ class SeniorsRelationManager extends RelationManager
                         ->icon('heroicon-o-check-circle')
                         ->requiresConfirmation()
                         ->form([
-                            Forms\Components\Select::make('claim_status')
+                            Forms\Components\Select::make('status')
                                 ->label('Claim Status')
                                 ->options([
                                     'Unclaimed' => 'Unclaimed',
@@ -96,9 +97,12 @@ class SeniorsRelationManager extends RelationManager
                                 ->required(),
                         ])
                         ->action(function (Collection $records, array $data) {
-                            $records->each(function ($record) use ($data) {
-                                $record->update(['claim_status' => $data['claim_status']]);
-                            });
+                            $payrollId = $this->getOwnerRecord()->id;
+
+                            DB::table('payroll_senior_citizen')
+                                ->where('payroll_id', $payrollId)
+                                ->whereIn('senior_citizen_id', $records->pluck('id'))
+                                ->update(['status' => $data['status']]);
                         })
                         ->deselectRecordsAfterCompletion()
                         ->successNotification(

@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SeniorCitizenResource\Pages;
-use App\Filament\Resources\SeniorCitizenResource\RelationManagers;
+use App\Filament\Resources\SeniorCitizenResource\RelationManagers\PayrollsRelationManager;
 use App\Models\SeniorCitizen;
 use App\Models\Purok;
 use App\Models\Barangay;
@@ -19,6 +19,7 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Illuminate\Support\Collection;
 use Filament\Forms\Get;
+use Illuminate\Validation\Rule;
 
 
 class SeniorCitizenResource extends Resource
@@ -48,17 +49,28 @@ class SeniorCitizenResource extends Resource
                             Forms\Components\Group::make()->schema([
                                 Forms\Components\TextInput::make('last_name')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rules([
+                                        function (Get $get) {
+                                            return Rule::unique('senior_citizens', 'last_name')
+                                                ->where('first_name', $get('first_name'))
+                                                ->where('middle_name', $get('middle_name'))
+                                                ->ignore($get('id'));
+                                        }
+                                    ])
+                                    ->live(onBlur: true),
                                 Forms\Components\TextInput::make('first_name')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->live(onBlur: true),
                                 Forms\Components\TextInput::make('middle_name')
                                     ->required()
-                                    ->maxLength(255),
-                            ])->columns(3)->columnSpanfull(),
+                                    ->maxLength(255)
+                                    ->live(onBlur: true),
+                            ])->columns(3)->columnSpanFull(),
+
 
                             Forms\Components\TextInput::make('extension')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\DatePicker::make('birthday')
                                 ->required()
@@ -118,16 +130,12 @@ class SeniorCitizenResource extends Resource
                         ->schema([
 
                             Forms\Components\TextInput::make('gsis_id')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('philhealth_id')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('illness')
-                                ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('disability')
-                                ->required()
                                 ->maxLength(255),
 
 
@@ -205,59 +213,22 @@ class SeniorCitizenResource extends Resource
 
             ])->columns(3);
     }
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Infolists\Components\Fieldset::make('Personal Information')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('osca_id'),
-                        Infolists\Components\TextEntry::make('full_name'),
-                        Infolists\Components\TextEntry::make('age'),
-                        Infolists\Components\TextEntry::make('birthday'),
-                        Infolists\Components\TextEntry::make('gender'),
-                        Infolists\Components\TextEntry::make('civil_status'),
-                        Infolists\Components\TextEntry::make('religion'),
-                        Infolists\Components\TextEntry::make('birth_place'),
-                    ]),
-                Infolists\Components\Fieldset::make('Address')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('purok.name'),
-                        Infolists\Components\TextEntry::make('barangay.name'),
-                        Infolists\Components\TextEntry::make('city.name'),
-                    ]),
 
-                Infolists\Components\Fieldset::make('Other Information')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('gsis_id'),
-                        Infolists\Components\TextEntry::make('philhealth_id'),
-                        Infolists\Components\TextEntry::make('illness'),
-                        Infolists\Components\TextEntry::make('disability'),
-                        Infolists\Components\TextEntry::make('educational_attainment'),
-                        Infolists\Components\TextEntry::make('status'),
-                    ]),
-            ]);
-    }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
 
-                Tables\Columns\TextColumn::make('full_name')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('osca_id')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('last_name')
-                    ->searchable()
-                    ->hidden(),
-                Tables\Columns\TextColumn::make('first_name')
-                    ->hidden()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('middle_name')
-                    ->hidden()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('extension')
-                    ->hidden()
-                    ->searchable(),
+                    ->label('Name')
+                    ->formatStateUsing(fn(SeniorCitizen $record): string =>
+                    "{$record->last_name}, {$record->first_name} {$record->middle_name} {$record->extension}")
+                    ->sortable(['last_name', 'first_name', 'middle_name'])
+                    ->searchable(['last_name', 'first_name', 'middle_name', 'extension']),
+
                 Tables\Columns\TextColumn::make('age')
                     ->numeric()
                     ->sortable(),
@@ -331,7 +302,6 @@ class SeniorCitizenResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make('view'),
                     Tables\Actions\EditAction::make('edit'),
                     Tables\Actions\DeleteAction::make('delete'),
                 ])
@@ -346,9 +316,10 @@ class SeniorCitizenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PayrollsRelationManager::class,
         ];
     }
+
 
     public static function getPages(): array
     {

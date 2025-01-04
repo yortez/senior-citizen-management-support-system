@@ -54,46 +54,70 @@ class SeniorCitizensReport extends Report
             ->schema([
                 Body\Layout\BodyColumn::make()
                     ->schema([
-
                         VerticalSpace::make(),
                         Text::make("Verified Senior Citizens")
                             ->fontXl()
                             ->fontBold()
                             ->primary(),
-                        Text::make("This is a list of verified Senior CItizens in Koronadal City")
+                        Text::make("This is a list of all verified Senior Citizens in Koronadal City")
                             ->fontSm()
                             ->secondary(),
                         Body\Table::make()
                             ->columns([
                                 Body\TextColumn::make("osca_id")
-                                    ->label("OSCA id"),
-                                Body\TextColumn::make("full_name")
-                                    ->label("Name"),
+                                    ->label("OSCA ID"),
+                                Body\TextColumn::make("last_name")
+                                    ->label("Last Name"),
+                                Body\TextColumn::make("first_name")
+                                    ->label("First Name"),
+                                Body\TextColumn::make("middle_name")
+                                    ->label("Middle Name"),
+                                Body\TextColumn::make("extension")
+                                    ->label("Extension"),
                                 Body\TextColumn::make("age")
                                     ->label("Age"),
-
+                                Body\TextColumn::make("gender")
+                                    ->label("Gender"),
+                                Body\TextColumn::make("civil_status")
+                                    ->label("Civil Status"),
+                                Body\TextColumn::make('religion.name')
+                                    ->numeric()
+                                    ->label("Religion"),
+                                Body\TextColumn::make("birth_place")
+                                    ->label("Birth Place"),
+                                Body\TextColumn::make("city.name")
+                                    ->label("City"),
+                                Body\TextColumn::make("barangay.name")
+                                    ->label("Barangay"),
+                                Body\TextColumn::make('purok.name'),
                             ])
                             ->data(
                                 function (?array $filters) {
-
                                     return SeniorCitizen::query()
-
+                                        ->with(relations: ['religion', 'city', 'barangay', 'purok'])
                                         ->select(
-                                            "osca_id",
-                                            "full_name",
-                                            "age",
-                                            "gender",
-                                            "civil_status",
-                                            "religion",
-                                            "birth_place"
+                                            'osca_id',
+                                            'last_name',
+                                            'first_name',
+                                            'middle_name',
+                                            'extension',
+                                            'age',
+                                            'gender',
+                                            'civil_status',
+                                            'religion_id',
+                                            'birth_place',
+                                            'city_id',
+                                            'barangay_id',
+                                            'purok_id',
                                         )
-                                        ->take(10)
                                         ->get();
                                 }
                             ),
                     ]),
             ]);
     }
+
+
 
     public
     function footer(Footer $footer): Footer

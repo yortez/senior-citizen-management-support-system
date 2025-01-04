@@ -58,10 +58,15 @@ class SeniorCitizen extends Model
 
     public function payrolls()
     {
-        return $this->belongsToMany(Payroll::class, 'payroll_senior_citizen')->withTimestamps();
+        return $this->belongsToMany(Payroll::class, 'payroll_senior_citizen')->withPivot('status');
     }
+
     public function religion()
     {
         return $this->belongsTo(Religion::class);
+    }
+    public function benefits()
+    {
+        return $this->belongsToMany(Payroll::class, 'payroll_senior_citizen')->withTimestamps();
     }
 }

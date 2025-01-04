@@ -6,6 +6,7 @@ use App\Filament\Resources\PayrollResource\Pages;
 use App\Filament\Resources\PayrollResource\RelationManagers\SeniorsRelationManager;
 use App\Models\Payroll;
 use Filament\Forms;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -36,15 +37,9 @@ class PayrollResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('benefit_id')
                             ->relationship('benefit', 'name')
-                            ->required()
-                            ->reactive() // Make it reactive to listen for changes
-                            ->afterStateUpdated(function (callable $set, $state) {
-                                // Fetch the benefit name and set it to the 'note' field
-                                $benefit = \App\Models\Benefit::find($state);
-                                $set('note', $benefit ? $benefit->name : null);
-                            }),
+                            ->required(),
+
                         Forms\Components\TextInput::make('note')
-                            ->disabled()
                             ->maxLength(255)
                             ->default(null),
                         Forms\Components\Select::make('status')
@@ -83,6 +78,15 @@ class PayrollResource extends Resource
                     ->label('Amount')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('seniors_count')
+                    ->label('Total Seniors')
+                    ->counts('seniors')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('claimed_seniors_count')
+                    ->label('Claimed Seniors')
+                    ->sortable(),
+
+
                 Tables\Columns\TextColumn::make('note')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
@@ -109,7 +113,7 @@ class PayrollResource extends Resource
             ->filters([])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('edit'),
+                    Tables\Actions\EditAction::make('edit'),
                 ])
             ])
             ->bulkActions([]);
@@ -124,7 +128,6 @@ class PayrollResource extends Resource
             'index' => Pages\ListPayrolls::route('/'),
             'create' => Pages\CreatePayroll::route('/create'),
             'edit' => Pages\EditPayroll::route('/{record}/edit'),
-            'view' => Pages\ViewPayroll::route('/{record}'),
 
         ];
     }

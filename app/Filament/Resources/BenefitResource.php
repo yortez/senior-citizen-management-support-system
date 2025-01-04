@@ -101,9 +101,9 @@ class BenefitResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('view'),
-                    Tables\Actions\Action::make('edit')->slideOver(),
-                    Tables\Actions\Action::make('delete'),
+                    Tables\Actions\ViewAction::make('view'),
+                    Tables\Actions\EditAction::make('edit')->slideOver(),
+                    Tables\Actions\DeleteAction::make('delete'),
                 ])
             ])
             ->bulkActions([

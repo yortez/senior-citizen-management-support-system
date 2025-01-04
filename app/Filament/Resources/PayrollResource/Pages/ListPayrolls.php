@@ -23,13 +23,4 @@ class ListPayrolls extends ListRecords
             ]),
         ];
     }
-    public function getTabs(): array
-    {
-        return [
-            null => Tab::make('All'),
-            'Pending' => Tab::make()->query(fn($query) => $query->where('status', 'Pending')),
-            'Approved' => Tab::make()->query(fn($query) => $query->where('status', 'Approved')),
-            'Rejected' => Tab::make()->query(fn($query) => $query->where('status', 'Rejected')),
-        ];
-    }
 }
