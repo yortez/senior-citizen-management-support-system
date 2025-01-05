@@ -29,7 +29,9 @@ class Payroll extends Model
     }
     public function seniors()
     {
-        return $this->belongsToMany(SeniorCitizen::class, 'payroll_senior_citizen')->withPivot('status');
+        return $this
+            ->belongsToMany(SeniorCitizen::class, 'payroll_senior_citizen')
+            ->withPivot('status');
     }
     public function getClaimedSeniorsCountAttribute()
     {

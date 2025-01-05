@@ -67,6 +67,6 @@ class SeniorCitizen extends Model
     }
     public function benefits()
     {
-        return $this->belongsToMany(Payroll::class, 'payroll_senior_citizen')->withTimestamps();
+        return $this->belongsToMany(Benefit::class);
     }
 }

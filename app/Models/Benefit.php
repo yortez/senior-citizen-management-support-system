@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Benefit extends Model
 {
-    
+
     public function senior_citizens(): HasMany
     {
         return $this->hasMany(SeniorCitizen::class);
@@ -15,5 +15,9 @@ class Benefit extends Model
     public function payroll()
     {
         return $this->hasMany(Payroll::class);
+    }
+    public function seniorCitizens()
+    {
+        return $this->belongsToMany(SeniorCitizen::class);
     }
 }

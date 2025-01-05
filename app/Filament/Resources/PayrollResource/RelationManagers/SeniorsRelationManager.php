@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PayrollResource\RelationManagers;
 
+use App\Models\Benefit;
+use App\Models\SeniorCitizen;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -13,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Columns\Column;
+use Carbon\Carbon;
+
 
 
 class SeniorsRelationManager extends RelationManager
@@ -74,14 +78,69 @@ class SeniorsRelationManager extends RelationManager
                 ExportAction::make()->exports([
                     ExcelExport::make()->fromTable()
                 ]),
+                Tables\Actions\Action::make('attachEligibleSeniors')
+                    ->label('Attach Eligible Seniors')
+                    ->icon('heroicon-o-user-group')
+                    ->action(function () {
+                        $payroll = $this->getOwnerRecord();
+                        $existingSeniorIds = $payroll->seniors()->pluck('senior_citizens.id');
 
+                        $benefit = Benefit::find($payroll->benefit_id);
+                        if (!$benefit) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Error')
+                                ->body('No benefit found for this payroll.')
+                                ->send();
+                            return;
+                        }
 
+                        $minAge = $benefit->min_age;
+                        $maxAge = $benefit->max_age;
+
+                        $minDate = Carbon::now()->subYears($maxAge);
+                        $maxDate = Carbon::now()->subYears($minAge);
+
+                        $newSeniors = SeniorCitizen::whereNotIn('id', $existingSeniorIds)
+                            ->where('birthday', '<=', $maxDate)
+                            ->where('birthday', '>=', $minDate)
+                            ->get();
+
+                        $attachedCount = $newSeniors->count();
+
+                        $payroll->seniors()->attach($newSeniors->pluck('id')->toArray(), ['status' => 'Unclaimed']);
+
+                        Notification::make()
+                            ->success()
+                            ->title('Eligible Seniors Attached')
+                            ->body("{$attachedCount} eligible senior citizens have been attached to this payroll.")
+                            ->send();
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Attach Eligible Seniors')
+                    ->modalDescription('Are you sure you want to attach all eligible senior citizens to this payroll?')
+                    ->modalSubmitActionLabel('Yes, Attach Eligible Seniors'),
             ])
             ->actions([
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DetachBulkAction::make()
+                        ->action(function (Collection $records) {
+                            $payroll = $this->getOwnerRecord();
+                            $detachedCount = $records->count();
+
+                            $payroll->seniors()->detach($records->pluck('id'));
+
+                            Notification::make()
+                                ->success()
+                                ->title('Seniors Detached')
+                                ->body("{$detachedCount} senior citizens have been detached from this payroll.")
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation(),
                     Tables\Actions\BulkAction::make('updateClaimStatus')
                         ->label('Update Claim Status')
                         ->icon('heroicon-o-check-circle')
