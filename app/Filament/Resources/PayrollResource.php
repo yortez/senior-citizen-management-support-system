@@ -36,8 +36,13 @@ class PayrollResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\Select::make('benefit_id')
-                            ->relationship('benefit', 'name')
-                            ->required(),
+                            ->relationship('benefit', 'name', function ($query) {
+                                // Exclude benefits that are already in payroll
+                                return $query->whereDoesntHave('payrolls');
+                            })
+                            ->required()
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\TextInput::make('note')
                             ->maxLength(255)

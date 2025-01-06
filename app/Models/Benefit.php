@@ -20,4 +20,8 @@ class Benefit extends Model
     {
         return $this->belongsToMany(SeniorCitizen::class);
     }
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
+    }
 }

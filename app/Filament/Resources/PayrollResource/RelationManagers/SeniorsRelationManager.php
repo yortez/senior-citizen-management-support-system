@@ -16,7 +16,8 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Columns\Column;
 use Carbon\Carbon;
-
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Barangay;
 
 
 class SeniorsRelationManager extends RelationManager
@@ -70,7 +71,10 @@ class SeniorsRelationManager extends RelationManager
 
             ])
             ->filters([
-                //
+                SelectFilter::make('barangay')
+                    ->label('Barangay')
+                    ->options(Barangay::pluck('name', 'id'))
+                    ->attribute('barangay_id')
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
