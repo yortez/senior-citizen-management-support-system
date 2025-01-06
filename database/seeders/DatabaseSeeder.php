@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Barangay;
+use App\Models\Purok;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -51,7 +52,13 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($barangays as $barangay) {
-            Barangay::create(['name' => $barangay]);
+            $createdBarangay = Barangay::create(['name' => $barangay]);
+
+            // Create Purok 1 for each barangay
+            Purok::create([
+                'name' => 'Purok 1',
+                'barangay_id' => $createdBarangay->id
+            ]);
         }
     }
 }

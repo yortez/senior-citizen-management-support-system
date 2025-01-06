@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class SeniorCitizenByBarangayChart extends ChartWidget
 {
     protected static ?string $heading = 'Senior Citizens by Barangay';
+    protected int | string | array $columnSpan = 'full';
 
     protected function getData(): array
     {

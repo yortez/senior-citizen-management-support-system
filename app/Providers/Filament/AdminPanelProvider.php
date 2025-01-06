@@ -32,6 +32,8 @@ use Swis\Filament\Backgrounds\FilamentBackgroundsPlugin;
 use Swis\Filament\Backgrounds\ImageProviders\MyImages;
 use App\Filament\Widgets\SeniorCitizensByBarangayTable;
 use App\Filament\Widgets\SeniorCitizenByBarangayChart;
+use App\Filament\Widgets\SeniorPopulationChart;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -61,7 +63,9 @@ class AdminPanelProvider extends PanelProvider
                 AgeBracketTable::class,
                 SeniorCitizensByBarangayTable::class,
                 AgeBracketBarGraph::class,
+                SeniorPopulationChart::class,
                 SeniorCitizenByBarangayChart::class,
+
 
             ])
             ->middleware([

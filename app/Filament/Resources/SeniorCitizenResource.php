@@ -330,4 +330,12 @@ class SeniorCitizenResource extends Resource
             'edit' => Pages\EditSeniorCitizen::route('/{record}/edit'),
         ];
     }
+    public static function getSeniorPopulationByYear(): array
+    {
+        return SeniorCitizen::selectRaw('YEAR(birthday) as year, COUNT(*) as count')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->pluck('count', 'year')
+            ->toArray();
+    }
 }
