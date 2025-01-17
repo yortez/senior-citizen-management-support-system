@@ -16,7 +16,7 @@ class SeniorCitizenByBarangayChart extends ChartWidget
         $data = SeniorCitizen::select('barangay_id', DB::raw('COUNT(*) as count'))
             ->groupBy('barangay_id')
             ->orderBy('count', 'desc')
-            ->limit(10)  // Limit to top 10 barangays for better readability
+            // ->limit(10)  // Limit to top 10 barangays for better readability
             ->get();
 
         return [

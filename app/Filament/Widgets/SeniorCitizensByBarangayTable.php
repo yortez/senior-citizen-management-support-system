@@ -30,7 +30,7 @@ class SeniorCitizensByBarangayTable extends BaseWidget
             ])
             ->defaultSort('count', 'desc')
             ->recordUrl(null)
-            ->paginated(false);
+            ->defaultPaginationPageOption(5);
     }
 
     public function getTableRecordKey(Model $record): string
