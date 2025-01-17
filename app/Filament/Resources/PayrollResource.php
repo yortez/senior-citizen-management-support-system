@@ -45,23 +45,46 @@ class PayrollResource extends Resource
                             ->searchable()
                             ->preload()
                             ->getOptionLabelUsing(fn($value): ?string => \App\Models\Benefit::find($value)?->name)
-                            ->disabledOn('edit'),
+                            ->disabledOn('edit')
+                            ->reactive()
+                            ->afterStateUpdated(function ($set, $state) {
+                                $benefit = \App\Models\Benefit::find($state);
+                                if ($benefit) {
+                                    $set('description', $benefit->description);
+                                    $set('amount', $benefit->amount);
+                                }
+                            }),
+                        Forms\Components\Textarea::make('benefit_description')
+                            ->label('Description')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->afterStateHydrated(function ($component, $state, $record) {
+                                // Load the description when editing an existing record
+                                if ($record && $record->benefit) {
+                                    $component->state($record->benefit->description);
+                                }
+                            }),
 
+                    ])->columnSpan(1),
+                Forms\Components\Section::make()->schema([
+                    Forms\Components\TextInput::make('amount')
+                        ->numeric()
+                        ->default(null)
+                        ->required(),
+                    Forms\Components\TextInput::make('note')
+                        ->maxLength(255)
+                        ->default(null),
+                    Forms\Components\Select::make('status')
+                        ->options([
+                            'Pending' => 'Pending',
+                            'Approved' => 'Approved',
+                            'Rejected' => 'Rejected',
+                        ])
+                        ->default('Pending')
+                        ->required(),
+                ])->columnSpan(1),
 
-                        Forms\Components\TextInput::make('note')
-                            ->maxLength(255)
-                            ->default(null),
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'Pending' => 'Pending',
-                                'Approved' => 'Approved',
-                                'Rejected' => 'Rejected',
-                            ])
-                            ->default('Pending')
-                            ->required(),
-                    ])->columns(3),
-
-            ]);
+            ])->columns(2);
     }
 
 
