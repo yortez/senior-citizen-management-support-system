@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PayrollResource\RelationManagers;
 
+use App\Filament\Resources\SeniorCitizenResource;
 use App\Models\Benefit;
 use App\Models\SeniorCitizen;
 use Filament\Forms;
@@ -18,6 +19,8 @@ use pxlrbt\FilamentExcel\Columns\Column;
 use Carbon\Carbon;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Barangay;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\ViewAction;
 
 
 class SeniorsRelationManager extends RelationManager
@@ -45,7 +48,9 @@ class SeniorsRelationManager extends RelationManager
             ->recordTitleAttribute('full_name')
 
             ->columns([
-                Tables\Columns\TextColumn::make('osca_id'),
+                Tables\Columns\TextColumn::make('osca_id')
+                    ->url(fn(SeniorCitizen $record): string => SeniorCitizenResource::getUrl('view', ['record' => $record]))
+                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('last_name'),
                 Tables\Columns\TextColumn::make('first_name'),
                 Tables\Columns\TextColumn::make('middle_name'),
@@ -66,15 +71,20 @@ class SeniorsRelationManager extends RelationManager
                             $name => !$record->$name
                         ]);
                     }),
-                // Tables\Columns\TextColumn::make('payrolls.note')->label('Benefit Type'),
-
-
             ])
+            ->paginated(false)
             ->filters([
                 SelectFilter::make('barangay')
                     ->label('Barangay')
                     ->options(Barangay::pluck('name', 'id'))
-                    ->attribute('barangay_id')
+                    ->attribute('barangay_id'),
+                SelectFilter::make('status')
+                    ->label('Incentive Status')
+                    ->options([
+                        'Unclaimed' => 'Unclaimed',
+                        'Claimed' => 'Claimed',
+                    ])
+                    ->attribute('status'),
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()

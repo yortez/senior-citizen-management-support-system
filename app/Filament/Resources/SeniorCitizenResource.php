@@ -20,6 +20,9 @@ use Filament\Infolists\Infolist;
 use Illuminate\Support\Collection;
 use Filament\Forms\Get;
 use Illuminate\Validation\Rule;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
 
 
 class SeniorCitizenResource extends Resource
@@ -45,7 +48,8 @@ class SeniorCitizenResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('osca_id')
                                 ->unique(ignoreRecord: true)
-                                ->numeric(),
+                                ->numeric()
+                                ->columnSpan(2),
                             Forms\Components\Group::make()->schema([
                                 Forms\Components\TextInput::make('last_name')
                                     ->required()
@@ -91,6 +95,18 @@ class SeniorCitizenResource extends Resource
                                     'F' => 'Female'
                                 ])
                                 ->required(),
+                            Forms\Components\Select::make('religion_id')
+                                ->relationship('religion', 'name')
+                                ->searchable()
+                                ->placeholder('Select Option')
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(255),
+                                ])
+
+                                ->required(),
                             Forms\Components\Select::make('civil_status')
                                 ->options([
                                     'single' => 'Single',
@@ -100,17 +116,7 @@ class SeniorCitizenResource extends Resource
                                     'widowed' => 'Widowed'
                                 ])
                                 ->required(),
-                            Forms\Components\Select::make('religion_id')
-                                ->relationship('religion', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->createOptionForm([
-                                    Forms\Components\TextInput::make('name')
-                                        ->required()
-                                        ->maxLength(255),
-                                ])
 
-                                ->required(),
                             Forms\Components\Select::make('educational_attainment')
                                 ->options([
                                     'elementary graduate' => 'Elementary Graduate',
@@ -201,11 +207,11 @@ class SeniorCitizenResource extends Resource
                                     $set('registry_number_hidden', $state);
                                 }),
                             Forms\Components\TextInput::make('registry_number')
-                                ->hidden(fn($get) => $get('registry_number_hidden') ?? true)
-                                ->required(fn($get) => !($get('registry_number_hidden') ?? true)),
+                                ->hidden(fn(Get $get) => $get('is_active'))
+                                ->required(fn(Get $get) => !$get('is_active')),
                             Forms\Components\TextInput::make('remarks')
-                                ->hidden(fn($get) => $get('registry_number_hidden') ?? true)
-                                ->required(fn($get) => !($get('registry_number_hidden') ?? true)),
+                                ->hidden(fn(Get $get) => $get('is_active'))
+                                ->required(fn(Get $get) => !$get('is_active')),
                         ]),
 
 
@@ -303,7 +309,7 @@ class SeniorCitizenResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make('edit'),
-                    Tables\Actions\DeleteAction::make('delete'),
+                    Tables\Actions\ViewAction::make('view'),
                 ])
             ])
             ->bulkActions([
@@ -326,7 +332,7 @@ class SeniorCitizenResource extends Resource
         return [
             'index' => Pages\ListSeniorCitizens::route('/'),
             'create' => Pages\CreateSeniorCitizen::route('/create'),
-            // 'view' => Pages\ViewSeniorCitizen::route('/{record}'),
+            'view' => Pages\ViewSeniorCitizen::route('/{record}'),
             'edit' => Pages\EditSeniorCitizen::route('/{record}/edit'),
         ];
     }
@@ -337,5 +343,59 @@ class SeniorCitizenResource extends Resource
             ->orderBy('year')
             ->pluck('count', 'year')
             ->toArray();
+    }
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Personal Information')
+                    ->schema([
+                        TextEntry::make('osca_id')
+                            ->label('OSCA ID'),
+                        TextEntry::make('full_name')
+                            ->state(function ($record) {
+                                return "{$record->last_name}, {$record->first_name} {$record->middle_name} {$record->extension}";
+                            }),
+                        TextEntry::make('birthday')
+                            ->date(),
+                        TextEntry::make('age'),
+                        TextEntry::make('gender'),
+                        TextEntry::make('civil_status'),
+                        TextEntry::make('religion.name'),
+                        TextEntry::make('educational_attainment'),
+                        TextEntry::make('birth_place'),
+                    ])->columns(3),
+
+                Section::make('Address')
+                    ->schema([
+                        TextEntry::make('purok.name')
+                            ->label('Purok'),
+                        TextEntry::make('barangay.name')
+                            ->label('Barangay'),
+                        TextEntry::make('city.name')
+                            ->label('City'),
+                    ])->columns(3),
+
+                Section::make('Other Information')
+                    ->schema([
+                        TextEntry::make('gsis_id')
+                            ->label('GSIS ID'),
+                        TextEntry::make('philhealth_id')
+                            ->label('PhilHealth ID'),
+                        TextEntry::make('illness'),
+                        TextEntry::make('disability'),
+                    ])->columns(3),
+
+                Section::make('Status')->schema([
+                    TextEntry::make('is_active')
+                        ->label('Status')
+                        ->badge()
+                        ->color(fn(string $state): string => $state ? 'success' : 'danger')
+                        ->formatStateUsing(fn(string $state): string => $state ? 'Active' : 'Deceased'),
+                    TextEntry::make('registry_number')
+                        ->label('Registry Number'),
+                    TextEntry::make('remarks'),
+                ])->columns(3),
+            ]);
     }
 }

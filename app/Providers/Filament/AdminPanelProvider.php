@@ -11,7 +11,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -33,7 +32,9 @@ use Swis\Filament\Backgrounds\ImageProviders\MyImages;
 use App\Filament\Widgets\SeniorCitizensByBarangayTable;
 use App\Filament\Widgets\SeniorCitizenByBarangayChart;
 use App\Filament\Widgets\SeniorPopulationChart;
-
+use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
+use Filament\Support\Colors\Color;
+use Filament\Enums\ThemeMode;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -41,6 +42,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->sidebarWidth('17rem')
             // ->passwordReset()
             // ->emailVerification()
             // ->brandName('Senior Citizen Management Support System')
@@ -49,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->defaultThemeMode(ThemeMode::Light)
             ->spa()
             ->colors([
                 'primary' => Color::Blue,
@@ -102,11 +105,17 @@ class AdminPanelProvider extends PanelProvider
                         force: false,
                     )
                     ->avatarUploadComponent(fn() => FileUpload::make('avatar_url')->disk('public')->directory('users')->avatar()->alignment('center')),
-                FilamentBackgroundsPlugin::make()
-                    ->imageProvider(
-                        MyImages::make()
-                            ->directory('images/backgrounds')
-                    ),
+                // FilamentBackgroundsPlugin::make()
+                //     ->imageProvider(
+                //         MyImages::make()
+                //             ->directory('images/backgrounds')
+                //     ),
+                AuthUIEnhancerPlugin::make()
+                    ->emptyPanelBackgroundImageUrl('/images/2.jpeg')
+                    ->formPanelPosition('right')
+                    ->formPanelWidth('40%')
+
+
             ])
             ->userMenuItems([
                 'logout' => MenuItem::make()->label('Log out'),

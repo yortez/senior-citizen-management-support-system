@@ -58,33 +58,36 @@ class PayrollResource extends Resource
                             ->label('Description')
                             ->disabled()
                             ->dehydrated(false)
+                            ->rows(5)
                             ->afterStateHydrated(function ($component, $state, $record) {
                                 // Load the description when editing an existing record
                                 if ($record && $record->benefit) {
                                     $component->state($record->benefit->description);
                                 }
-                            }),
+                            })
+                            ->hiddenOn('create'),
 
-                    ])->columnSpan(1),
+                    ])->columnSpan(2),
                 Forms\Components\Section::make()->schema([
                     Forms\Components\TextInput::make('amount')
                         ->numeric()
+                        ->prefix('₱')
                         ->default(null)
+                        ->required(),
+
+                    Forms\Components\Select::make('status')
+                        ->options([
+                            'Pending' => 'Pending',
+                            'completed' => 'Completed',
+                        ])
+                        ->default('Pending')
                         ->required(),
                     Forms\Components\TextInput::make('note')
                         ->maxLength(255)
                         ->default(null),
-                    Forms\Components\Select::make('status')
-                        ->options([
-                            'Pending' => 'Pending',
-                            'Approved' => 'Approved',
-                            'Rejected' => 'Rejected',
-                        ])
-                        ->default('Pending')
-                        ->required(),
                 ])->columnSpan(1),
 
-            ])->columns(2);
+            ])->columns(3);
     }
 
 
@@ -108,7 +111,7 @@ class PayrollResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('benefit.amount')
                     ->label('Amount')
-                    ->numeric()
+                    ->money('PHP')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('seniors_count')
                     ->label('Total Seniors')
@@ -126,8 +129,7 @@ class PayrollResource extends Resource
                     ->color(fn(string $state): string => match ($state) {
                         'draft' => 'gray',
                         'Pending' => 'warning',
-                        'Approved' => 'success',
-                        'Rejected' => 'danger',
+                        'completed' => 'success',
                     })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('seniors.full_name')
@@ -136,11 +138,7 @@ class PayrollResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Date Approved')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([])
             ->actions([

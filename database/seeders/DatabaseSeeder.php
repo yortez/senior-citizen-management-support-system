@@ -52,15 +52,15 @@ class DatabaseSeeder extends Seeder
             'General Paulino Santos (Barrio 1)',
         ];
 
-        foreach ($barangays as $barangay) {
-            $createdBarangay = Barangay::create(['name' => $barangay]);
+        // foreach ($barangays as $barangay) {
+        //     $createdBarangay = Barangay::create(['name' => $barangay]);
 
-            // Create Purok 1 for each barangay
-            Purok::create([
-                'name' => 'Purok 1',
-                'barangay_id' => $createdBarangay->id
-            ]);
-        }
+        //     // Create Purok 1 for each barangay
+        //     Purok::create([
+        //         'name' => 'Purok 1',
+        //         'barangay_id' => $createdBarangay->id
+        //     ]);
+        // }
 
         $benefits = [
             'Social Pension' => [

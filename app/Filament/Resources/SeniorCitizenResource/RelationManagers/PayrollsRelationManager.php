@@ -44,6 +44,6 @@ class PayrollsRelationManager extends RelationManager
             ])
             ->filters([
                 //
-            ]);
+            ])->paginated(false);
     }
 }

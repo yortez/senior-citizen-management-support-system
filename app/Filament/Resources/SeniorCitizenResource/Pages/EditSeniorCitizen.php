@@ -13,7 +13,7 @@ class EditSeniorCitizen extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\ViewAction::make(),
         ];
     }
     protected function getRedirectUrl(): string
