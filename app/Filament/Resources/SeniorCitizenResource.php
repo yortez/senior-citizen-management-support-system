@@ -23,6 +23,8 @@ use Illuminate\Validation\Rule;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Forms\Components\Radio;
+
 
 
 class SeniorCitizenResource extends Resource
@@ -43,14 +45,16 @@ class SeniorCitizenResource extends Resource
     {
         return $form
             ->schema([
+
+
+
                 Forms\Components\Group::make()->schema([
+
+
                     Forms\Components\Section::make('Personal Information')
                         ->description('')
                         ->schema([
-                            Forms\Components\DatePicker::make('date_of_registration')
-                                ->date()
-                                ->required()
-                                ->maxDate(now()),
+
 
                             Forms\Components\TextInput::make('osca_id')
                                 ->unique(ignoreRecord: true)
@@ -204,6 +208,16 @@ class SeniorCitizenResource extends Resource
                     Forms\Components\Section::make('Status')
                         ->description('')
                         ->schema([
+
+                            Radio::make('type')
+                                ->options([
+                                    'pensioner' => 'Pensioner',
+                                    'non-pensioner' => 'Non-Pensioner',
+                                ]),
+                            Forms\Components\DatePicker::make('date_of_registration')
+                                ->date()
+                                ->required()
+                                ->maxDate(now()),
                             Forms\Components\Toggle::make('is_active')
                                 ->label(fn($state) => $state ? 'Active' : 'Inactive')
                                 ->default(true)
@@ -219,6 +233,7 @@ class SeniorCitizenResource extends Resource
                                 ->hidden(fn(Get $get) => $get('is_active'))
                                 ->required(fn(Get $get) => !$get('is_active')),
                         ]),
+
 
 
                 ])->columnSpan(1),
