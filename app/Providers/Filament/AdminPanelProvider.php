@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->sidebarWidth('17rem')
+            ->sidebarWidth('16rem')
             // ->passwordReset()
             // ->emailVerification()
             // ->brandName('Senior Citizen Management Support System')
