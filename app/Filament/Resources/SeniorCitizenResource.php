@@ -29,6 +29,7 @@ class SeniorCitizenResource extends Resource
 {
     protected static ?string $model = SeniorCitizen::class;
     protected static ?string $modelLabel = 'Master List';
+    protected static ?string $pluralModelLabel = 'Master List';
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?int $navigationSort = 0;
     public static function getNavigationBadge(): ?string
@@ -46,6 +47,11 @@ class SeniorCitizenResource extends Resource
                     Forms\Components\Section::make('Personal Information')
                         ->description('')
                         ->schema([
+                            Forms\Components\DatePicker::make('date_of_registration')
+                                ->date()
+                                ->required()
+                                ->maxDate(now()),
+
                             Forms\Components\TextInput::make('osca_id')
                                 ->unique(ignoreRecord: true)
                                 ->numeric()
@@ -199,7 +205,7 @@ class SeniorCitizenResource extends Resource
                         ->description('')
                         ->schema([
                             Forms\Components\Toggle::make('is_active')
-                                ->label(fn($state) => $state ? 'Active' : 'Deceased')
+                                ->label(fn($state) => $state ? 'Active' : 'Inactive')
                                 ->default(true)
                                 ->required()
                                 ->reactive()

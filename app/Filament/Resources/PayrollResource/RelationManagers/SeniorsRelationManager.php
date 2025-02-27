@@ -49,11 +49,13 @@ class SeniorsRelationManager extends RelationManager
 
             ->columns([
                 Tables\Columns\TextColumn::make('osca_id')
+                    ->searchable()
                     ->url(fn(SeniorCitizen $record): string => SeniorCitizenResource::getUrl('view', ['record' => $record]))
                     ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('last_name'),
-                Tables\Columns\TextColumn::make('first_name'),
-                Tables\Columns\TextColumn::make('middle_name'),
+                Tables\Columns\TextColumn::make('last_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('first_name')->searchable(),
+                Tables\Columns\TextColumn::make('middle_name')->searchable(),
                 Tables\Columns\TextColumn::make('age'),
                 Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('birthday'),

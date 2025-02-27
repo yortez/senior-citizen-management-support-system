@@ -36,10 +36,7 @@ class PayrollResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\Select::make('benefit_id')
-                            ->relationship('benefit', 'name', function ($query): mixed {
-                                // Exclude benefits that are already in payroll
-                                return $query->whereDoesntHave('payrolls');
-                            })
+                            ->relationship('benefit', 'name')
                             ->label('Benefit')
                             ->required()
                             ->searchable()

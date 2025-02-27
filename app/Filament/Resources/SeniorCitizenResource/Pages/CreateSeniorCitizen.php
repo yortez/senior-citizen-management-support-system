@@ -15,13 +15,12 @@ class CreateSeniorCitizen extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
     protected function getHeaderActions(): array
-{
-    return [
-        $this->getCreateFormAction()
-            ->formId('form'),
+    {
+        return [
+            $this->getCreateFormAction()
+                ->formId('form'),
             $this->getCancelFormAction()
-            ->formId('form'),
-    ];
-}
-
+                ->formId('form'),
+        ];
+    }
 }

@@ -23,4 +23,13 @@ class ListPayrolls extends ListRecords
             ]),
         ];
     }
+    public function getTabs(): array
+    {
+        return [
+            'Pending' => Tab::make()->query(fn($query) => $query->where('status', 'Pending')),
+            'Completed' => Tab::make()->query(fn($query) => $query->where('status', 'completed')),
+            null => Tab::make('All'),
+
+        ];
+    }
 }
